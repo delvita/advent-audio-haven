@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlayerSettings, PlayerSettingsDB, defaultSettings } from "@/types/player";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 export const usePlayerSettings = () => {
   const { toast } = useToast();
@@ -28,7 +29,7 @@ export const usePlayerSettings = () => {
           id: existingSettings?.id || "default",
           name: newSettings.name || "",
           feed_url: newSettings.feed_url || "",
-          colors: newSettings.colors || defaultSettings.colors,
+          colors: newSettings.colors as Json || defaultSettings.colors,
           list_height: newSettings.list_height || defaultSettings.list_height,
           sort_ascending: newSettings.sort_ascending ?? defaultSettings.sort_ascending,
           show_first_post: newSettings.show_first_post ?? defaultSettings.show_first_post,
