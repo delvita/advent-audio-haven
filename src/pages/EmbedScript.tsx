@@ -26,11 +26,8 @@ const EmbedScript = () => {
       })();
     `;
 
-    // Set content type header
-    document.contentType = 'application/javascript';
-    
-    // Write the script content
-    document.open();
+    // Write the script content with proper content type
+    document.open('text/javascript');
     document.write(script);
     document.close();
   }, [embedId]);
