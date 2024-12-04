@@ -6,19 +6,14 @@ const EmbedScript = () => {
   const embedId = searchParams.get('id') || 'default';
 
   useEffect(() => {
-    // Set response headers
-    const response = new Response(null, {
-      headers: {
-        'Content-Type': 'application/javascript',
-        'Access-Control-Allow-Origin': '*'
-      }
-    });
+    // Get the current host dynamically
+    const currentHost = window.location.origin;
 
-    // Generate the embed script
+    // Generate the embed script with dynamic host
     const script = `
       (function() {
         const iframe = document.createElement('iframe');
-        iframe.src = '${window.location.origin}/embed/${embedId}';
+        iframe.src = '${currentHost}/embed/${embedId}';
         iframe.style.width = '100%';
         iframe.style.height = '600px';
         iframe.style.border = 'none';
@@ -31,6 +26,9 @@ const EmbedScript = () => {
       })();
     `;
 
+    // Set content type header
+    document.contentType = 'application/javascript';
+    
     // Write the script content
     document.open();
     document.write(script);
