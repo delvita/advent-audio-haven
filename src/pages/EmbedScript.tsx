@@ -6,6 +6,9 @@ const EmbedScript = () => {
   const embedId = searchParams.get('id') || 'default';
 
   useEffect(() => {
+    // Set the content type to JavaScript
+    document.contentType = 'application/javascript';
+    
     // Get the current host dynamically
     const currentHost = window.location.origin;
 
@@ -38,15 +41,9 @@ const EmbedScript = () => {
       })();
     `;
 
-    try {
-      // Create and append the script element
-      const scriptElement = document.createElement('script');
-      scriptElement.type = 'text/javascript';
-      scriptElement.textContent = script;
-      document.body.appendChild(scriptElement);
-    } catch (error) {
-      console.error('Error injecting embed script:', error);
-    }
+    // Write the script directly to the document
+    document.write(script);
+    document.close();
   }, [embedId]);
 
   return null;
