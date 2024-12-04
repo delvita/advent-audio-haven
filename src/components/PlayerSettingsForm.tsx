@@ -49,14 +49,16 @@ export const PlayerSettingsForm = ({
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="player_name">Name</Label>
             <Input
-              id="name"
+              id="player_name"
+              name="player_name"
               value={settings.name}
               onChange={(e) =>
                 updateSettings({ name: e.target.value })
               }
               placeholder="Mein Podcast Player"
+              autoComplete="off"
             />
           </div>
 
@@ -64,11 +66,13 @@ export const PlayerSettingsForm = ({
             <Label htmlFor="feed_url">Feed URL</Label>
             <Input
               id="feed_url"
+              name="feed_url"
               value={settings.feed_url}
               onChange={(e) =>
                 updateSettings({ feed_url: e.target.value })
               }
               placeholder="https://example.com/feed.xml"
+              autoComplete="url"
             />
           </div>
 
@@ -79,8 +83,9 @@ export const PlayerSettingsForm = ({
               onValueChange={(value) =>
                 updateSettings({ player_type: value })
               }
+              name="player_type"
             >
-              <SelectTrigger>
+              <SelectTrigger id="player_type">
                 <SelectValue placeholder="Wähle eine Größe" />
               </SelectTrigger>
               <SelectContent>
@@ -95,11 +100,13 @@ export const PlayerSettingsForm = ({
             <Label htmlFor="list_height">Listenhöhe (px)</Label>
             <Input
               id="list_height"
+              name="list_height"
               type="number"
               value={settings.list_height}
               onChange={(e) =>
                 updateSettings({ list_height: e.target.value })
               }
+              autoComplete="off"
             />
           </div>
 
@@ -147,6 +154,7 @@ export const PlayerSettingsForm = ({
             <Label htmlFor="sort_ascending">Aufsteigend sortieren</Label>
             <Switch
               id="sort_ascending"
+              name="sort_ascending"
               checked={settings.sort_ascending}
               onCheckedChange={(checked) =>
                 updateSettings({ sort_ascending: checked })
@@ -158,6 +166,7 @@ export const PlayerSettingsForm = ({
             <Label htmlFor="show_first_post">Ersten Beitrag anzeigen</Label>
             <Switch
               id="show_first_post"
+              name="show_first_post"
               checked={settings.show_first_post}
               onCheckedChange={(checked) =>
                 updateSettings({ show_first_post: checked })
