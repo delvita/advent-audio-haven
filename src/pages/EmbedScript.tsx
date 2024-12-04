@@ -25,9 +25,6 @@ const EmbedScript = () => {
         currentScript.parentNode.insertBefore(iframe, currentScript.nextSibling);
       })();
     `;
-
-    // Set content type header for JavaScript
-    document.contentType = 'application/javascript';
     
     // Write the script to the document
     document.open('text/javascript');
