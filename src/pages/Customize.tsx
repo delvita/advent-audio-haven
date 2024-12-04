@@ -68,7 +68,7 @@ const Customize = () => {
       const xml = parser.parseFromString(text, "text/xml");
       const items = xml.querySelectorAll("item");
 
-      const parsedEpisodes = Array.from(items).map((item) => {
+      let parsedEpisodes = Array.from(items).map((item) => {
         const title = item.querySelector("title")?.textContent || "Untitled Episode";
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
         const imageUrl = getValidImageUrl(item);
