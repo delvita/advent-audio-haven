@@ -13,13 +13,36 @@
   const playerContainer = document.createElement('div');
   playerContainer.style.width = '100%';
   
-  // Featured image container
+  // Featured image container with responsive layout
   const imageContainer = document.createElement('div');
   imageContainer.style.width = '100%';
   imageContainer.style.position = 'relative';
-  imageContainer.style.paddingBottom = '56.25%'; // 16:9 aspect ratio
   imageContainer.style.backgroundColor = '#f3f4f6';
   imageContainer.style.overflow = 'hidden';
+  
+  // Make image container responsive
+  const mediaQuery = window.matchMedia('(min-width: 640px)');
+  const updateLayout = (e) => {
+    if (e.matches) {
+      // Desktop layout
+      imageContainer.style.width = '33.333%';
+      imageContainer.style.position = 'absolute';
+      imageContainer.style.left = '0';
+      imageContainer.style.top = '0';
+      imageContainer.style.bottom = '0';
+      imageContainer.style.paddingBottom = '0';
+      playerContainer.style.marginLeft = '33.333%';
+    } else {
+      // Mobile layout
+      imageContainer.style.width = '100%';
+      imageContainer.style.position = 'relative';
+      imageContainer.style.paddingBottom = '56.25%';
+      playerContainer.style.marginLeft = '0';
+    }
+  };
+  
+  mediaQuery.addListener(updateLayout);
+  updateLayout(mediaQuery);
   
   const featuredImage = document.createElement('img');
   featuredImage.style.position = 'absolute';
@@ -140,6 +163,24 @@
     return duration;
   };
   
+  // Function to get episode image from item
+  const getEpisodeImage = (item) => {
+    // Try different possible image sources in order of preference
+    const itunesImage = item.querySelector('itunes\\:image')?.getAttribute('href');
+    const mediaContent = item.querySelector('media\\:content')?.getAttribute('url');
+    const enclosureImage = Array.from(item.querySelectorAll('enclosure'))
+      .find(enc => enc.getAttribute('type')?.startsWith('image/'))
+      ?.getAttribute('url');
+    const description = item.querySelector('description')?.textContent;
+    const imgMatch = description?.match(/<img[^>]+src="([^">]+)"/);
+    
+    return itunesImage || 
+           mediaContent || 
+           enclosureImage || 
+           (imgMatch && imgMatch[1]) || 
+           'placeholder.jpg';
+  };
+  
   // Function to create episode elements
   const createEpisodeElement = (episode) => {
     const div = document.createElement('div');
@@ -159,7 +200,7 @@
     thumbnail.style.position = 'relative';
     
     const thumbnailImg = document.createElement('img');
-    thumbnailImg.src = episode.imageUrl || 'placeholder.jpg';
+    thumbnailImg.src = episode.imageUrl;
     thumbnailImg.style.width = '100%';
     thumbnailImg.style.height = '100%';
     thumbnailImg.style.objectFit = 'cover';
@@ -203,7 +244,7 @@
       audio.play();
       playButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
       episodeTitle.textContent = episode.title;
-      featuredImage.src = episode.imageUrl || 'placeholder.jpg';
+      featuredImage.src = episode.imageUrl;
       
       document.querySelectorAll('.episode-active').forEach(el => {
         el.classList.remove('episode-active');
@@ -214,6 +255,51 @@
     });
     
     return div;
+  };
+  
+  // Function to parse RSS feed
+  const loadPodcast = async (feedUrl) => {
+    try {
+      const corsProxy = 'https://mf1.ch/crosproxy/?';
+      const response = await fetch(corsProxy + feedUrl);
+      const text = await response.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'text/xml');
+      
+      const items = xml.querySelectorAll('item');
+      const episodes = Array.from(items).map(item => {
+        return {
+          title: item.querySelector('title')?.textContent || 'Untitled Episode',
+          audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
+          duration: item.querySelector('itunes\\:duration')?.textContent,
+          imageUrl: getEpisodeImage(item),
+          pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
+        };
+      });
+      
+      // Sort episodes by publication date (ascending - oldest first)
+      episodes.sort((a, b) => a.pubDate - b.pubDate);
+      
+      episodeListTitle.textContent = `Episodes (${episodes.length})`;
+      
+      episodes.forEach(episode => {
+        const episodeElement = createEpisodeElement(episode);
+        episodeListContainer.appendChild(episodeElement);
+      });
+      
+      // Load first (oldest) episode
+      if (episodes.length > 0) {
+        const firstEpisode = episodes[0];
+        audio.src = firstEpisode.audioUrl;
+        episodeTitle.textContent = firstEpisode.title;
+        featuredImage.src = firstEpisode.imageUrl;
+        episodeListContainer.firstChild.classList.add('episode-active');
+        episodeListContainer.firstChild.style.backgroundColor = '#f9fafb';
+      }
+    } catch (error) {
+      console.error('Error loading podcast feed:', error);
+      episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
+    }
   };
   
   // Audio event listeners
@@ -247,70 +333,13 @@
     }
   });
   
-  // Function to parse RSS feed
-  const loadPodcast = async (feedUrl) => {
-    try {
-      const corsProxy = 'https://mf1.ch/crosproxy/?';
-      const response = await fetch(corsProxy + feedUrl);
-      const text = await response.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, 'text/xml');
-      
-      const items = xml.querySelectorAll('item');
-      const episodes = Array.from(items).map(item => {
-        const imageUrl = item.querySelector('itunes\\:image')?.getAttribute('href') ||
-                        item.querySelector('media\\:content')?.getAttribute('url') ||
-                        xml.querySelector('channel > image > url')?.textContent ||
-                        xml.querySelector('channel > itunes\\:image')?.getAttribute('href');
-        
-        return {
-          title: item.querySelector('title')?.textContent || 'Untitled Episode',
-          audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
-          duration: item.querySelector('itunes\\:duration')?.textContent,
-          imageUrl: imageUrl,
-          pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
-        };
-      });
-      
-      // Sort episodes by publication date (ascending - oldest first)
-      episodes.sort((a, b) => a.pubDate - b.pubDate);
-      
-      episodeListTitle.textContent = `Episodes (${episodes.length})`;
-      
-      episodes.forEach(episode => {
-        const episodeElement = createEpisodeElement(episode);
-        episodeListContainer.appendChild(episodeElement);
-      });
-      
-      // Load first (oldest) episode
-      if (episodes.length > 0) {
-        const firstEpisode = episodes[0];
-        audio.src = firstEpisode.audioUrl;
-        episodeTitle.textContent = firstEpisode.title;
-        featuredImage.src = firstEpisode.imageUrl || 'placeholder.jpg';
-        episodeListContainer.firstChild.classList.add('episode-active');
-        episodeListContainer.firstChild.style.backgroundColor = '#f9fafb';
-      }
-    } catch (error) {
-      console.error('Error loading podcast feed:', error);
-      episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
-    }
-  };
-  
   // Assemble the player
-  audioContainer.appendChild(progressContainer);
-  audioContainer.appendChild(timeDisplay);
-  audioContainer.appendChild(controls);
+  container.appendChild(imageContainer);
+  container.appendChild(playerContainer);
   
-  episodeList.appendChild(episodeListTitle);
-  episodeList.appendChild(episodeListContainer);
-  
-  playerContainer.appendChild(imageContainer);
   playerContainer.appendChild(episodeTitle);
   playerContainer.appendChild(audioContainer);
   playerContainer.appendChild(episodeList);
-  
-  container.appendChild(playerContainer);
   
   // Find target div and insert player
   const targetDiv = document.getElementById('jsplayer');
