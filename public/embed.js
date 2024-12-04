@@ -4,6 +4,7 @@
   container.style.width = '100%';
   container.style.maxWidth = '800px';
   container.style.margin = '0 auto';
+  container.style.overflow = 'hidden';
   
   const iframe = document.createElement('iframe');
   const scriptTag = document.currentScript;
