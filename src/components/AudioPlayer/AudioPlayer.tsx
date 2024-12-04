@@ -22,13 +22,30 @@ export const AudioPlayer = ({ audioSrc, title, imageUrl, onNext }: AudioPlayerPr
   const nextTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    // Start playing when a new episode is selected
     if (audioRef.current) {
+      // Reset state when audio source changes
+      setCurrentTime(0);
+      setDuration(0);
+      setIsPlaying(false);
+      setShowEndActions(false);
+      
+      // Start playing when a new episode is selected
       audioRef.current.play().catch(() => {
         // Autoplay was prevented
         setIsPlaying(false);
       });
     }
+
+    return () => {
+      // Cleanup function
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      if (nextTimeoutRef.current) {
+        clearTimeout(nextTimeoutRef.current);
+      }
+    };
   }, [audioSrc]);
 
   useEffect(() => {
@@ -67,9 +84,6 @@ export const AudioPlayer = ({ audioSrc, title, imageUrl, onNext }: AudioPlayerPr
       audio.removeEventListener("durationchange", handleDurationChange);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
-      if (nextTimeoutRef.current) {
-        clearTimeout(nextTimeoutRef.current);
-      }
     };
   }, [onNext, toast]);
 
@@ -127,7 +141,7 @@ export const AudioPlayer = ({ audioSrc, title, imageUrl, onNext }: AudioPlayerPr
 
   return (
     <div className="relative">
-      <audio ref={audioRef} src={audioSrc} />
+      <audio ref={audioRef} src={audioSrc} preload="metadata" />
       <div className="flex flex-col sm:flex-row">
         {imageUrl && (
           <div className="w-full sm:w-1/3">
