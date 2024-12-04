@@ -13,10 +13,14 @@
     return;
   }
   
-  iframe.src = `${window.location.origin}/embed/${embedId}`;
+  // Use the script's source URL to determine the player's domain
+  const scriptUrl = new URL(scriptTag.src);
+  const playerDomain = `${scriptUrl.protocol}//${scriptUrl.host}`;
+  
+  iframe.src = `${playerDomain}/embed/${embedId}`;
   iframe.style.width = '100%';
-  iframe.style.height = '800px'; // Increased height to accommodate episode list
-  iframe.style.border = '1px solid #e2e8f0'; // Added subtle border
+  iframe.style.height = '800px';
+  iframe.style.border = '1px solid #e2e8f0';
   iframe.style.borderRadius = '8px';
   iframe.allow = 'autoplay';
   
