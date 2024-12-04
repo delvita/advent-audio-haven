@@ -24,6 +24,7 @@
   episodeTitle.style.padding = '20px';
   episodeTitle.style.margin = '0';
   episodeTitle.style.borderBottom = '1px solid #e2e8f0';
+  episodeTitle.style.backgroundColor = '#f8fafc';
   
   const episodeList = document.createElement('div');
   episodeList.style.maxHeight = '400px';
@@ -50,16 +51,29 @@
   // Function to create episode elements
   const createEpisodeElement = (episode) => {
     const div = document.createElement('div');
-    div.style.padding = '10px';
+    div.style.padding = '15px';
     div.style.margin = '5px 0';
-    div.style.borderRadius = '4px';
+    div.style.borderRadius = '6px';
     div.style.cursor = 'pointer';
-    div.style.transition = 'background-color 0.2s';
-    div.style.backgroundColor = '#f8f9fa';
+    div.style.transition = 'all 0.2s';
+    div.style.backgroundColor = '#f8fafc';
+    div.style.border = '1px solid transparent';
+    
+    div.addEventListener('mouseover', () => {
+      div.style.backgroundColor = '#f1f5f9';
+      div.style.borderColor = '#e2e8f0';
+    });
+    
+    div.addEventListener('mouseout', () => {
+      if (!div.classList.contains('episode-active')) {
+        div.style.backgroundColor = '#f8fafc';
+        div.style.borderColor = 'transparent';
+      }
+    });
     
     div.innerHTML = `
-      <div style="font-weight: bold;">${episode.title}</div>
-      ${episode.duration ? `<div style="color: #666; font-size: 0.9em;">${formatDuration(episode.duration)}</div>` : ''}
+      <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">${episode.title}</div>
+      ${episode.duration ? `<div style="color: #64748b; font-size: 0.875rem;">${formatDuration(episode.duration)}</div>` : ''}
     `;
     
     div.addEventListener('click', () => {
@@ -70,10 +84,12 @@
       // Update active episode styling
       document.querySelectorAll('.episode-active').forEach(el => {
         el.classList.remove('episode-active');
-        el.style.backgroundColor = '#f8f9fa';
+        el.style.backgroundColor = '#f8fafc';
+        el.style.borderColor = 'transparent';
       });
       div.classList.add('episode-active');
-      div.style.backgroundColor = '#e2e8f0';
+      div.style.backgroundColor = '#f1f5f9';
+      div.style.borderColor = '#e2e8f0';
     });
     
     return div;
@@ -92,25 +108,30 @@
       const episodes = Array.from(items).map(item => ({
         title: item.querySelector('title')?.textContent || 'Untitled Episode',
         audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
-        duration: item.querySelector('itunes\\:duration')?.textContent
+        duration: item.querySelector('itunes\\:duration')?.textContent,
+        pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
       }));
+
+      // Sort episodes by publication date (ascending - oldest first)
+      episodes.sort((a, b) => a.pubDate - b.pubDate);
       
       episodes.forEach(episode => {
         const episodeElement = createEpisodeElement(episode);
         episodeList.appendChild(episodeElement);
       });
       
-      // Load first episode
+      // Load first (oldest) episode
       if (episodes.length > 0) {
         const firstEpisode = episodes[0];
         audio.src = firstEpisode.audioUrl;
         episodeTitle.textContent = firstEpisode.title;
         episodeList.firstChild.classList.add('episode-active');
-        episodeList.firstChild.style.backgroundColor = '#e2e8f0';
+        episodeList.firstChild.style.backgroundColor = '#f1f5f9';
+        episodeList.firstChild.style.borderColor = '#e2e8f0';
       }
     } catch (error) {
       console.error('Error loading podcast feed:', error);
-      episodeList.innerHTML = '<div style="padding: 20px; color: red;">Error loading podcast feed</div>';
+      episodeList.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
     }
   };
   
