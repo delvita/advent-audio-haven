@@ -20,8 +20,8 @@
   imageContainer.style.backgroundColor = '#f3f4f6';
   imageContainer.style.overflow = 'hidden';
   
-  // Make image container responsive
-  const mediaQuery = window.matchMedia('(min-width: 640px)');
+  // Make image container responsive with medium breakpoint
+  const mediaQuery = window.matchMedia('(min-width: 768px)');
   const updateLayout = (e) => {
     if (e.matches) {
       // Desktop layout
@@ -43,7 +43,7 @@
   
   mediaQuery.addListener(updateLayout);
   updateLayout(mediaQuery);
-  
+
   const featuredImage = document.createElement('img');
   featuredImage.style.position = 'absolute';
   featuredImage.style.top = '0';
@@ -154,10 +154,8 @@
   episodeListTitle.style.color = '#1a1a1a';
   
   const episodeListContainer = document.createElement('div');
-
-// Update episodeListContainer styles
-episodeListContainer.style.maxHeight = '350px';
-episodeListContainer.style.overflow = 'auto';
+  episodeListContainer.style.maxHeight = '350px';
+  episodeListContainer.style.overflow = 'auto';
 
   const formatDuration = (duration) => {
     if (!duration) return '';
@@ -264,57 +262,55 @@ episodeListContainer.style.overflow = 'auto';
   };
   
   // Function to parse RSS feed
-
-// Update loadPodcast function to load the oldest episode first while keeping sort order
-const loadPodcast = async (feedUrl) => {
-  try {
-    const corsProxy = 'https://mf1.ch/crosproxy/?';
-    const response = await fetch(corsProxy + feedUrl);
-    const text = await response.text();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, 'text/xml');
-    
-    const items = xml.querySelectorAll('item');
-    const episodes = Array.from(items).map(item => {
-      return {
-        title: item.querySelector('title')?.textContent || 'Untitled Episode',
-        audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
-        duration: item.querySelector('itunes\\:duration')?.textContent,
-        imageUrl: getEpisodeImage(item),
-        pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
-      };
-    });
-    
-    // Sort episodes by publication date (newest first)
-    episodes.sort((a, b) => b.pubDate - a.pubDate);
-    
-    episodeListTitle.textContent = `Episodes (${episodes.length})`;
-    
-    episodes.forEach(episode => {
-      const episodeElement = createEpisodeElement(episode);
-      episodeListContainer.appendChild(episodeElement);
-    });
-    
-    // Load the oldest episode first (last in the sorted array)
-    if (episodes.length > 0) {
-      const oldestEpisode = episodes[episodes.length - 1];
-      audio.src = oldestEpisode.audioUrl;
-      episodeTitle.textContent = oldestEpisode.title;
-      featuredImage.src = oldestEpisode.imageUrl;
+  const loadPodcast = async (feedUrl) => {
+    try {
+      const corsProxy = 'https://mf1.ch/crosproxy/?';
+      const response = await fetch(corsProxy + feedUrl);
+      const text = await response.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'text/xml');
       
-      // Find and activate the corresponding episode element
-      const episodeElements = episodeListContainer.children;
-      const lastElement = episodeElements[episodeElements.length - 1];
-      if (lastElement) {
-        lastElement.classList.add('episode-active');
-        lastElement.style.backgroundColor = '#f9fafb';
+      const items = xml.querySelectorAll('item');
+      const episodes = Array.from(items).map(item => {
+        return {
+          title: item.querySelector('title')?.textContent || 'Untitled Episode',
+          audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
+          duration: item.querySelector('itunes\\:duration')?.textContent,
+          imageUrl: getEpisodeImage(item),
+          pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
+        };
+      });
+      
+      // Sort episodes by publication date (newest first)
+      episodes.sort((a, b) => b.pubDate - a.pubDate);
+      
+      episodeListTitle.textContent = `Episodes (${episodes.length})`;
+      
+      episodes.forEach(episode => {
+        const episodeElement = createEpisodeElement(episode);
+        episodeListContainer.appendChild(episodeElement);
+      });
+      
+      // Load the oldest episode first (last in the sorted array)
+      if (episodes.length > 0) {
+        const oldestEpisode = episodes[episodes.length - 1];
+        audio.src = oldestEpisode.audioUrl;
+        episodeTitle.textContent = oldestEpisode.title;
+        featuredImage.src = oldestEpisode.imageUrl;
+        
+        // Find and activate the corresponding episode element
+        const episodeElements = episodeListContainer.children;
+        const lastElement = episodeElements[episodeElements.length - 1];
+        if (lastElement) {
+          lastElement.classList.add('episode-active');
+          lastElement.style.backgroundColor = '#f9fafb';
+        }
       }
+    } catch (error) {
+      console.error('Error loading podcast feed:', error);
+      episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
     }
-  } catch (error) {
-    console.error('Error loading podcast feed:', error);
-    episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
-  }
-};
+  };
 
   // Audio event listeners
   audio.addEventListener('timeupdate', () => {
