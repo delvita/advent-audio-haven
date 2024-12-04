@@ -7,10 +7,11 @@ import { useToast } from "@/hooks/use-toast";
 interface AudioPlayerProps {
   audioSrc: string;
   title: string;
+  imageUrl?: string;
   onNext?: () => void;
 }
 
-export const AudioPlayer = ({ audioSrc, title, onNext }: AudioPlayerProps) => {
+export const AudioPlayer = ({ audioSrc, title, imageUrl, onNext }: AudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -84,19 +85,28 @@ export const AudioPlayer = ({ audioSrc, title, onNext }: AudioPlayerProps) => {
   return (
     <Card className="p-6 max-w-2xl mx-auto bg-white/80 backdrop-blur-sm">
       <audio ref={audioRef} src={audioSrc} />
-      <h2 className="text-xl font-semibold mb-4 text-center">{title}</h2>
-      <div className="space-y-6">
-        <AudioControls
-          isPlaying={isPlaying}
-          onPlayPause={handlePlayPause}
-          onSkipForward={handleSkipForward}
-          onSkipBackward={handleSkipBackward}
-        />
-        <ProgressBar
-          currentTime={currentTime}
-          duration={duration}
-          onSeek={handleSeek}
-        />
+      <div className="flex gap-6">
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-24 h-24 rounded-lg object-cover"
+          />
+        )}
+        <div className="flex-1 space-y-6">
+          <h2 className="text-xl font-semibold mb-4">{title}</h2>
+          <AudioControls
+            isPlaying={isPlaying}
+            onPlayPause={handlePlayPause}
+            onSkipForward={handleSkipForward}
+            onSkipBackward={handleSkipBackward}
+          />
+          <ProgressBar
+            currentTime={currentTime}
+            duration={duration}
+            onSeek={handleSeek}
+          />
+        </div>
       </div>
     </Card>
   );
