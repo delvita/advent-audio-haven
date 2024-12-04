@@ -32,8 +32,8 @@ const EmbedScript = () => {
       })();
     `;
 
-    // Set content type to JavaScript
-    document.contentType = 'application/javascript';
+    // Clear any existing content
+    document.open();
     
     // Write the script content directly to the document
     document.write(script);
