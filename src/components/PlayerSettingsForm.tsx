@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { PlayerSettings, defaultSettings } from "@/types/player";
 
 interface PlayerSettingsFormProps {
@@ -64,6 +65,30 @@ export const PlayerSettingsForm = ({
               }
               placeholder="https://example.com/feed.xml"
               autoComplete="url"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="sort_ascending">Aufsteigend sortieren</Label>
+            <Switch
+              id="sort_ascending"
+              name="sort_ascending"
+              checked={settings.sort_ascending}
+              onCheckedChange={(checked) =>
+                updateSettings({ sort_ascending: checked })
+              }
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="show_first_post">Ersten Beitrag anzeigen</Label>
+            <Switch
+              id="show_first_post"
+              name="show_first_post"
+              checked={settings.show_first_post}
+              onCheckedChange={(checked) =>
+                updateSettings({ show_first_post: checked })
+              }
             />
           </div>
         </div>
