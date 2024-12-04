@@ -17,9 +17,14 @@ import { PlayerSettings, defaultSettings } from "@/types/player";
 interface PlayerSettingsFormProps {
   initialSettings?: Partial<PlayerSettings>;
   onSubmit: (settings: Partial<PlayerSettings>) => void;
+  onChange?: (settings: Partial<PlayerSettings>) => void;
 }
 
-export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettingsFormProps) => {
+export const PlayerSettingsForm = ({ 
+  initialSettings, 
+  onSubmit,
+  onChange 
+}: PlayerSettingsFormProps) => {
   const [settings, setSettings] = useState<Partial<PlayerSettings>>(defaultSettings);
 
   useEffect(() => {
@@ -27,6 +32,12 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
       setSettings(initialSettings);
     }
   }, [initialSettings]);
+
+  const updateSettings = (newSettings: Partial<PlayerSettings>) => {
+    const updatedSettings = { ...settings, ...newSettings };
+    setSettings(updatedSettings);
+    onChange?.(updatedSettings);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +54,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
               id="name"
               value={settings.name}
               onChange={(e) =>
-                setSettings({ ...settings, name: e.target.value })
+                updateSettings({ name: e.target.value })
               }
               placeholder="Mein Podcast Player"
             />
@@ -55,7 +66,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
               id="feed_url"
               value={settings.feed_url}
               onChange={(e) =>
-                setSettings({ ...settings, feed_url: e.target.value })
+                updateSettings({ feed_url: e.target.value })
               }
               placeholder="https://example.com/feed.xml"
             />
@@ -66,7 +77,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
             <Select
               value={settings.player_type}
               onValueChange={(value) =>
-                setSettings({ ...settings, player_type: value })
+                updateSettings({ player_type: value })
               }
             >
               <SelectTrigger>
@@ -87,7 +98,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
               type="number"
               value={settings.list_height}
               onChange={(e) =>
-                setSettings({ ...settings, list_height: e.target.value })
+                updateSettings({ list_height: e.target.value })
               }
             />
           </div>
@@ -96,8 +107,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
             label="Text Farbe"
             value={settings.colors?.text || defaultSettings.colors.text}
             onChange={(value) =>
-              setSettings({
-                ...settings,
+              updateSettings({
                 colors: { ...settings.colors, text: value },
               })
             }
@@ -107,8 +117,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
             label="Primär Farbe"
             value={settings.colors?.primary || defaultSettings.colors.primary}
             onChange={(value) =>
-              setSettings({
-                ...settings,
+              updateSettings({
                 colors: { ...settings.colors, primary: value },
               })
             }
@@ -118,8 +127,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
             label="Sekundär Farbe"
             value={settings.colors?.secondary || defaultSettings.colors.secondary}
             onChange={(value) =>
-              setSettings({
-                ...settings,
+              updateSettings({
                 colors: { ...settings.colors, secondary: value },
               })
             }
@@ -129,8 +137,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
             label="Hintergrund"
             value={settings.colors?.background || defaultSettings.colors.background}
             onChange={(value) =>
-              setSettings({
-                ...settings,
+              updateSettings({
                 colors: { ...settings.colors, background: value },
               })
             }
@@ -142,7 +149,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
               id="sort_ascending"
               checked={settings.sort_ascending}
               onCheckedChange={(checked) =>
-                setSettings({ ...settings, sort_ascending: checked })
+                updateSettings({ sort_ascending: checked })
               }
             />
           </div>
@@ -153,7 +160,7 @@ export const PlayerSettingsForm = ({ initialSettings, onSubmit }: PlayerSettings
               id="show_first_post"
               checked={settings.show_first_post}
               onCheckedChange={(checked) =>
-                setSettings({ ...settings, show_first_post: checked })
+                updateSettings({ show_first_post: checked })
               }
             />
           </div>
