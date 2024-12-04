@@ -29,7 +29,7 @@ export const usePlayerSettings = () => {
           id: existingSettings?.id || "default",
           name: newSettings.name || "",
           feed_url: newSettings.feed_url || "",
-          colors: newSettings.colors as Json || defaultSettings.colors,
+          colors: (newSettings.colors as unknown) as Json || defaultSettings.colors,
           list_height: newSettings.list_height || defaultSettings.list_height,
           sort_ascending: newSettings.sort_ascending ?? defaultSettings.sort_ascending,
           show_first_post: newSettings.show_first_post ?? defaultSettings.show_first_post,
