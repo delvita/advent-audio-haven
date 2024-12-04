@@ -15,39 +15,43 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+interface Colors {
+  text: string;
+  primary: string;
+  secondary: string;
+  background: string;
+}
+
 interface PlayerSettings {
   id: string;
   name: string;
   feed_url: string;
-  colors: {
-    text: string;
-    primary: string;
-    secondary: string;
-    background: string;
-  };
+  colors: Colors;
   list_height: string;
   sort_ascending: boolean;
   show_first_post: boolean;
   player_type: string;
 }
 
+const defaultSettings: Partial<PlayerSettings> = {
+  name: "",
+  feed_url: "",
+  colors: {
+    text: "#000000",
+    primary: "#9b87f5",
+    secondary: "#7E69AB",
+    background: "#ffffff",
+  },
+  list_height: "600",
+  sort_ascending: false,
+  show_first_post: false,
+  player_type: "medium",
+};
+
 const Customize = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [settings, setSettings] = useState<Partial<PlayerSettings>>({
-    name: "",
-    feed_url: "",
-    colors: {
-      text: "#000000",
-      primary: "#9b87f5",
-      secondary: "#7E69AB",
-      background: "#ffffff",
-    },
-    list_height: "600",
-    sort_ascending: false,
-    show_first_post: false,
-    player_type: "medium",
-  });
+  const [settings, setSettings] = useState<Partial<PlayerSettings>>(defaultSettings);
 
   const { data: existingSettings, isLoading } = useQuery({
     queryKey: ["playerSettings"],
@@ -58,7 +62,7 @@ const Customize = () => {
         .single();
 
       if (error) throw error;
-      return data as PlayerSettings;
+      return data as unknown as PlayerSettings;
     },
   });
 
@@ -68,8 +72,13 @@ const Customize = () => {
         .from("player_settings")
         .upsert({
           id: existingSettings?.id || "default",
-          ...settings,
-          ...newSettings,
+          name: newSettings.name || "",
+          feed_url: newSettings.feed_url || "",
+          colors: newSettings.colors || defaultSettings.colors,
+          list_height: newSettings.list_height || defaultSettings.list_height,
+          sort_ascending: newSettings.sort_ascending ?? defaultSettings.sort_ascending,
+          show_first_post: newSettings.show_first_post ?? defaultSettings.show_first_post,
+          player_type: newSettings.player_type || defaultSettings.player_type,
         })
         .select()
         .single();
