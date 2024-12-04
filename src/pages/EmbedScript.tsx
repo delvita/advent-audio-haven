@@ -6,12 +6,15 @@ const EmbedScript = () => {
   const embedId = searchParams.get('id') || 'default';
 
   useEffect(() => {
-    // Set CORS headers
-    const headers = new Headers();
-    headers.append('Access-Control-Allow-Origin', '*');
-    headers.append('Content-Type', 'application/javascript');
+    // Set content type header
+    if (document.contentType !== 'application/javascript') {
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Type';
+      meta.content = 'application/javascript';
+      document.head.appendChild(meta);
+    }
 
-    // Generate the embed script with proper CORS handling
+    // Generate and write the embed script
     const script = `
       (function() {
         // Create iframe element
@@ -26,12 +29,15 @@ const EmbedScript = () => {
         
         // Find the script tag and insert iframe after it
         const scripts = document.getElementsByTagName('script');
-        const currentScript = scripts[scripts.length - 1];
-        currentScript.parentNode.insertBefore(iframe, currentScript.nextSibling);
+        for (let script of scripts) {
+          if (script.src.includes('/embed.js')) {
+            script.parentNode.insertBefore(iframe, script.nextSibling);
+            break;
+          }
+        }
       })();
     `;
 
-    // Write the script content
     document.write(script);
     document.close();
   }, [embedId]);

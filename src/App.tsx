@@ -20,19 +20,32 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/customize" element={<Customize />} />
-            <Route path="/embed/:embedId" element={<Embed />} />
-            <Route path="/embed.js" element={<EmbedScript />} />
-            <Route path="embed.js" element={<EmbedScript />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/embed.js" element={<EmbedScript />} />
+          <Route
+            path="/"
+            element={
+              <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
+                <Toaster />
+                <Sonner />
+                <Index />
+              </div>
+            }
+          />
+          <Route
+            path="/customize"
+            element={
+              <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
+                <Toaster />
+                <Sonner />
+                <Customize />
+              </div>
+            }
+          />
+          <Route path="/embed/:embedId" element={<Embed />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
