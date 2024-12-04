@@ -6,9 +6,6 @@ const EmbedScript = () => {
   const embedId = searchParams.get('id') || 'default';
 
   useEffect(() => {
-    // Set the content type to JavaScript
-    document.contentType = 'application/javascript';
-    
     // Get the current host dynamically
     const currentHost = window.location.origin;
 
