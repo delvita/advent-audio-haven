@@ -5,37 +5,129 @@
   container.style.maxWidth = '800px';
   container.style.margin = '0 auto';
   container.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+  container.style.backgroundColor = '#ffffff';
+  container.style.borderRadius = '12px';
+  container.style.overflow = 'hidden';
+  container.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
   
   const playerContainer = document.createElement('div');
   playerContainer.style.width = '100%';
-  playerContainer.style.border = '1px solid #e2e8f0';
-  playerContainer.style.borderRadius = '8px';
-  playerContainer.style.overflow = 'hidden';
-  playerContainer.style.backgroundColor = '#ffffff';
   
-  // Audio player elements
-  const audio = document.createElement('audio');
-  audio.controls = true;
-  audio.style.width = '100%';
-  audio.style.margin = '20px 0';
-  audio.style.padding = '0 20px';
+  // Featured image container
+  const imageContainer = document.createElement('div');
+  imageContainer.style.width = '100%';
+  imageContainer.style.position = 'relative';
+  imageContainer.style.paddingBottom = '56.25%'; // 16:9 aspect ratio
+  imageContainer.style.backgroundColor = '#f3f4f6';
+  imageContainer.style.overflow = 'hidden';
   
+  const featuredImage = document.createElement('img');
+  featuredImage.style.position = 'absolute';
+  featuredImage.style.top = '0';
+  featuredImage.style.left = '0';
+  featuredImage.style.width = '100%';
+  featuredImage.style.height = '100%';
+  featuredImage.style.objectFit = 'cover';
+  
+  imageContainer.appendChild(featuredImage);
+  
+  // Episode title
   const episodeTitle = document.createElement('h2');
   episodeTitle.style.padding = '20px';
   episodeTitle.style.margin = '0';
-  episodeTitle.style.borderBottom = '1px solid #e2e8f0';
-  episodeTitle.style.backgroundColor = '#f8fafc';
+  episodeTitle.style.fontSize = '1.5rem';
+  episodeTitle.style.fontWeight = '600';
+  episodeTitle.style.color = '#1a1a1a';
   
+  // Audio player container
+  const audioContainer = document.createElement('div');
+  audioContainer.style.padding = '0 20px 20px';
+  
+  // Custom audio player
+  const audio = document.createElement('audio');
+  
+  // Progress bar container
+  const progressContainer = document.createElement('div');
+  progressContainer.style.width = '100%';
+  progressContainer.style.height = '4px';
+  progressContainer.style.backgroundColor = '#e5e7eb';
+  progressContainer.style.borderRadius = '2px';
+  progressContainer.style.cursor = 'pointer';
+  progressContainer.style.marginBottom = '10px';
+  
+  const progress = document.createElement('div');
+  progress.style.width = '0%';
+  progress.style.height = '100%';
+  progress.style.backgroundColor = '#3b82f6';
+  progress.style.borderRadius = '2px';
+  progress.style.transition = 'width 0.1s';
+  
+  progressContainer.appendChild(progress);
+  
+  // Time display
+  const timeDisplay = document.createElement('div');
+  timeDisplay.style.display = 'flex';
+  timeDisplay.style.justifyContent = 'space-between';
+  timeDisplay.style.color = '#6b7280';
+  timeDisplay.style.fontSize = '0.875rem';
+  timeDisplay.innerHTML = '<span>0:00</span><span>0:00</span>';
+  
+  // Controls container
+  const controls = document.createElement('div');
+  controls.style.display = 'flex';
+  controls.style.alignItems = 'center';
+  controls.style.justifyContent = 'center';
+  controls.style.gap = '20px';
+  controls.style.margin = '20px 0';
+  
+  // Control buttons
+  const createButton = (icon) => {
+    const button = document.createElement('button');
+    button.style.background = 'none';
+    button.style.border = 'none';
+    button.style.cursor = 'pointer';
+    button.style.padding = '8px';
+    button.style.borderRadius = '50%';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    button.style.transition = 'background-color 0.2s';
+    button.innerHTML = icon;
+    button.style.color = '#1a1a1a';
+    
+    button.addEventListener('mouseover', () => {
+      button.style.backgroundColor = '#f3f4f6';
+    });
+    
+    button.addEventListener('mouseout', () => {
+      button.style.backgroundColor = 'transparent';
+    });
+    
+    return button;
+  };
+  
+  const prevButton = createButton('<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>');
+  const playButton = createButton('<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>');
+  const nextButton = createButton('<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>');
+  
+  controls.appendChild(prevButton);
+  controls.appendChild(playButton);
+  controls.appendChild(nextButton);
+  
+  // Episode list
   const episodeList = document.createElement('div');
-  episodeList.style.maxHeight = '400px';
-  episodeList.style.overflow = 'auto';
-  episodeList.style.padding = '10px';
+  episodeList.style.borderTop = '1px solid #e5e7eb';
   
-  // Add elements to containers
-  playerContainer.appendChild(episodeTitle);
-  playerContainer.appendChild(audio);
-  playerContainer.appendChild(episodeList);
-  container.appendChild(playerContainer);
+  const episodeListTitle = document.createElement('h3');
+  episodeListTitle.style.padding = '20px';
+  episodeListTitle.style.margin = '0';
+  episodeListTitle.style.fontSize = '1.125rem';
+  episodeListTitle.style.fontWeight = '600';
+  episodeListTitle.style.color = '#1a1a1a';
+  
+  const episodeListContainer = document.createElement('div');
+  episodeListContainer.style.maxHeight = '400px';
+  episodeListContainer.style.overflow = 'auto';
   
   // Function to format duration
   const formatDuration = (duration) => {
@@ -51,49 +143,109 @@
   // Function to create episode elements
   const createEpisodeElement = (episode) => {
     const div = document.createElement('div');
-    div.style.padding = '15px';
-    div.style.margin = '5px 0';
-    div.style.borderRadius = '6px';
+    div.style.padding = '15px 20px';
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.gap = '15px';
     div.style.cursor = 'pointer';
-    div.style.transition = 'all 0.2s';
-    div.style.backgroundColor = '#f8fafc';
-    div.style.border = '1px solid transparent';
+    div.style.transition = 'background-color 0.2s';
+    
+    const thumbnail = document.createElement('div');
+    thumbnail.style.width = '48px';
+    thumbnail.style.height = '48px';
+    thumbnail.style.borderRadius = '8px';
+    thumbnail.style.overflow = 'hidden';
+    thumbnail.style.flexShrink = '0';
+    thumbnail.style.position = 'relative';
+    
+    const thumbnailImg = document.createElement('img');
+    thumbnailImg.src = episode.imageUrl || 'placeholder.jpg';
+    thumbnailImg.style.width = '100%';
+    thumbnailImg.style.height = '100%';
+    thumbnailImg.style.objectFit = 'cover';
+    
+    const playIcon = document.createElement('div');
+    playIcon.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    playIcon.style.position = 'absolute';
+    playIcon.style.top = '50%';
+    playIcon.style.left = '50%';
+    playIcon.style.transform = 'translate(-50%, -50%)';
+    playIcon.style.opacity = '0';
+    playIcon.style.transition = 'opacity 0.2s';
+    
+    thumbnail.appendChild(thumbnailImg);
+    thumbnail.appendChild(playIcon);
+    
+    const content = document.createElement('div');
+    content.style.flex = '1';
+    content.innerHTML = `
+      <div style="font-weight: 500; color: #1a1a1a; margin-bottom: 4px;">${episode.title}</div>
+      ${episode.duration ? `<div style="color: #6b7280; font-size: 0.875rem;">${formatDuration(episode.duration)}</div>` : ''}
+    `;
+    
+    div.appendChild(thumbnail);
+    div.appendChild(content);
     
     div.addEventListener('mouseover', () => {
-      div.style.backgroundColor = '#f1f5f9';
-      div.style.borderColor = '#e2e8f0';
+      div.style.backgroundColor = '#f9fafb';
+      playIcon.style.opacity = '1';
     });
     
     div.addEventListener('mouseout', () => {
       if (!div.classList.contains('episode-active')) {
-        div.style.backgroundColor = '#f8fafc';
-        div.style.borderColor = 'transparent';
+        div.style.backgroundColor = 'transparent';
+        playIcon.style.opacity = '0';
       }
     });
-    
-    div.innerHTML = `
-      <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">${episode.title}</div>
-      ${episode.duration ? `<div style="color: #64748b; font-size: 0.875rem;">${formatDuration(episode.duration)}</div>` : ''}
-    `;
     
     div.addEventListener('click', () => {
       audio.src = episode.audioUrl;
       audio.play();
+      playButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
       episodeTitle.textContent = episode.title;
+      featuredImage.src = episode.imageUrl || 'placeholder.jpg';
       
-      // Update active episode styling
       document.querySelectorAll('.episode-active').forEach(el => {
         el.classList.remove('episode-active');
-        el.style.backgroundColor = '#f8fafc';
-        el.style.borderColor = 'transparent';
+        el.style.backgroundColor = 'transparent';
       });
       div.classList.add('episode-active');
-      div.style.backgroundColor = '#f1f5f9';
-      div.style.borderColor = '#e2e8f0';
+      div.style.backgroundColor = '#f9fafb';
     });
     
     return div;
   };
+  
+  // Audio event listeners
+  audio.addEventListener('timeupdate', () => {
+    const currentTime = audio.currentTime;
+    const duration = audio.duration;
+    progress.style.width = `${(currentTime / duration) * 100}%`;
+    timeDisplay.firstChild.textContent = formatDuration(Math.floor(currentTime));
+    timeDisplay.lastChild.textContent = formatDuration(Math.floor(duration));
+  });
+  
+  audio.addEventListener('ended', () => {
+    playButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+  });
+  
+  // Progress bar click handler
+  progressContainer.addEventListener('click', (e) => {
+    const rect = progressContainer.getBoundingClientRect();
+    const pos = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pos * audio.duration;
+  });
+  
+  // Play/Pause button handler
+  playButton.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      playButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+    } else {
+      audio.pause();
+      playButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    }
+  });
   
   // Function to parse RSS feed
   const loadPodcast = async (feedUrl) => {
@@ -105,19 +257,29 @@
       const xml = parser.parseFromString(text, 'text/xml');
       
       const items = xml.querySelectorAll('item');
-      const episodes = Array.from(items).map(item => ({
-        title: item.querySelector('title')?.textContent || 'Untitled Episode',
-        audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
-        duration: item.querySelector('itunes\\:duration')?.textContent,
-        pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
-      }));
-
+      const episodes = Array.from(items).map(item => {
+        const imageUrl = item.querySelector('itunes\\:image')?.getAttribute('href') ||
+                        item.querySelector('media\\:content')?.getAttribute('url') ||
+                        xml.querySelector('channel > image > url')?.textContent ||
+                        xml.querySelector('channel > itunes\\:image')?.getAttribute('href');
+        
+        return {
+          title: item.querySelector('title')?.textContent || 'Untitled Episode',
+          audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
+          duration: item.querySelector('itunes\\:duration')?.textContent,
+          imageUrl: imageUrl,
+          pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
+        };
+      });
+      
       // Sort episodes by publication date (ascending - oldest first)
       episodes.sort((a, b) => a.pubDate - b.pubDate);
       
+      episodeListTitle.textContent = `Episodes (${episodes.length})`;
+      
       episodes.forEach(episode => {
         const episodeElement = createEpisodeElement(episode);
-        episodeList.appendChild(episodeElement);
+        episodeListContainer.appendChild(episodeElement);
       });
       
       // Load first (oldest) episode
@@ -125,15 +287,30 @@
         const firstEpisode = episodes[0];
         audio.src = firstEpisode.audioUrl;
         episodeTitle.textContent = firstEpisode.title;
-        episodeList.firstChild.classList.add('episode-active');
-        episodeList.firstChild.style.backgroundColor = '#f1f5f9';
-        episodeList.firstChild.style.borderColor = '#e2e8f0';
+        featuredImage.src = firstEpisode.imageUrl || 'placeholder.jpg';
+        episodeListContainer.firstChild.classList.add('episode-active');
+        episodeListContainer.firstChild.style.backgroundColor = '#f9fafb';
       }
     } catch (error) {
       console.error('Error loading podcast feed:', error);
-      episodeList.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
+      episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
     }
   };
+  
+  // Assemble the player
+  audioContainer.appendChild(progressContainer);
+  audioContainer.appendChild(timeDisplay);
+  audioContainer.appendChild(controls);
+  
+  episodeList.appendChild(episodeListTitle);
+  episodeList.appendChild(episodeListContainer);
+  
+  playerContainer.appendChild(imageContainer);
+  playerContainer.appendChild(episodeTitle);
+  playerContainer.appendChild(audioContainer);
+  playerContainer.appendChild(episodeList);
+  
+  container.appendChild(playerContainer);
   
   // Find target div and insert player
   const targetDiv = document.getElementById('jsplayer');
