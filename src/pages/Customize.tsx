@@ -8,12 +8,14 @@ import { convertJsonToColors } from "@/utils/typeConversions";
 import { EpisodeList } from "@/components/AudioPlayer/EpisodeList";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { EmbedCodes } from "@/components/EmbedCodes";
 
 interface Episode {
   title: string;
   audioUrl: string;
   imageUrl: string;
   duration?: string;
+  pubDate: string; // Add pubDate for sorting
 }
 
 const Customize = () => {
@@ -58,7 +60,11 @@ const Customize = () => {
   };
 
   const sortEpisodes = (episodesToSort: Episode[], ascending: boolean) => {
-    return ascending ? [...episodesToSort] : [...episodesToSort].reverse();
+    return [...episodesToSort].sort((a, b) => {
+      const dateA = new Date(a.pubDate).getTime();
+      const dateB = new Date(b.pubDate).getTime();
+      return ascending ? dateA - dateB : dateB - dateA;
+    });
   };
 
   const fetchFeed = async (feedUrl: string) => {
@@ -74,12 +80,14 @@ const Customize = () => {
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
         const imageUrl = getValidImageUrl(item);
         const duration = getDuration(item);
+        const pubDate = item.querySelector("pubDate")?.textContent || new Date().toISOString();
         
         return {
           title,
           audioUrl,
           imageUrl,
           duration,
+          pubDate,
         };
       });
 
@@ -163,6 +171,7 @@ const Customize = () => {
             onSubmit={handleSubmit}
             onChange={handleSettingsChange}
           />
+          {existingSettings && <EmbedCodes embedId={existingSettings.id} />}
           <PlayerSettingsTable
             settings={existingSettings}
             onEdit={handleEdit}
