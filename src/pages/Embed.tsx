@@ -128,20 +128,24 @@ const Embed = () => {
 
   return (
     <div className="w-full h-full bg-white">
-      <Card className="overflow-hidden">
-        {currentEpisode && (
-          <AudioPlayer
-            title={currentEpisode.title}
-            audioSrc={currentEpisode.audioUrl}
-            imageUrl={currentEpisode.imageUrl}
-            onNext={handleNext}
+      <Card className="overflow-hidden flex flex-col h-full">
+        <div className="flex-shrink-0">
+          {currentEpisode && (
+            <AudioPlayer
+              title={currentEpisode.title}
+              audioSrc={currentEpisode.audioUrl}
+              imageUrl={currentEpisode.imageUrl}
+              onNext={handleNext}
+            />
+          )}
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <EpisodeList
+            episodes={episodes}
+            currentEpisode={currentEpisode}
+            onEpisodeSelect={handleEpisodeSelect}
           />
-        )}
-        <EpisodeList
-          episodes={episodes}
-          currentEpisode={currentEpisode}
-          onEpisodeSelect={handleEpisodeSelect}
-        />
+        </div>
       </Card>
     </div>
   );
