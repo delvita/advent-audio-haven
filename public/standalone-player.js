@@ -62,7 +62,7 @@
   episodeTitle.style.fontWeight = '600';
   episodeTitle.style.color = '#1a1a1a';
   
-  // Audio player container
+  // Audio player container - moved up before it's used
   const audioContainer = document.createElement('div');
   audioContainer.style.padding = '0 20px 20px';
   
@@ -136,6 +136,11 @@
   controls.appendChild(prevButton);
   controls.appendChild(playButton);
   controls.appendChild(nextButton);
+
+  // Add elements to audio container
+  audioContainer.appendChild(progressContainer);
+  audioContainer.appendChild(timeDisplay);
+  audioContainer.appendChild(controls);
   
   // Episode list
   const episodeList = document.createElement('div');
@@ -151,8 +156,7 @@
   const episodeListContainer = document.createElement('div');
   episodeListContainer.style.maxHeight = '400px';
   episodeListContainer.style.overflow = 'auto';
-  
-  // Function to format duration
+
   const formatDuration = (duration) => {
     if (!duration) return '';
     if (/^\d+$/.test(duration)) {
@@ -340,6 +344,9 @@
   playerContainer.appendChild(episodeTitle);
   playerContainer.appendChild(audioContainer);
   playerContainer.appendChild(episodeList);
+  
+  episodeList.appendChild(episodeListTitle);
+  episodeList.appendChild(episodeListContainer);
   
   // Find target div and insert player
   const targetDiv = document.getElementById('jsplayer');
