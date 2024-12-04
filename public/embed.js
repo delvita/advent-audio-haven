@@ -23,6 +23,8 @@
   iframe.style.height = '800px';
   iframe.style.border = '1px solid #e2e8f0';
   iframe.style.borderRadius = '8px';
+  iframe.style.overflow = 'hidden';
+  iframe.scrolling = 'no';
   iframe.allow = 'autoplay';
   
   container.appendChild(iframe);
