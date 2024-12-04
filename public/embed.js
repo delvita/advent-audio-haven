@@ -22,22 +22,13 @@
     return;
   }
   
-  // Use the script's source URL to determine the player's domain
   const scriptUrl = new URL(scriptTag.src);
   const playerDomain = `${scriptUrl.protocol}//${scriptUrl.host}`;
   
-  // Fetch and inject the player content
   fetch(`${playerDomain}/embed/${embedId}`)
     .then(response => response.text())
     .then(html => {
       playerContainer.innerHTML = html;
-      
-      // Apply any necessary styles from the parent document
-      const styles = document.getElementsByTagName('style');
-      Array.from(styles).forEach(style => {
-        const clonedStyle = style.cloneNode(true);
-        playerContainer.appendChild(clonedStyle);
-      });
     })
     .catch(error => {
       console.error('Error loading player:', error);
