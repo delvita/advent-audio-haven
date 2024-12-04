@@ -8,10 +8,9 @@ const EmbedScript = () => {
 
   useEffect(() => {
     const script = generateEmbedScript(embedId, window.location.origin);
-    
-    // Instead of setting contentType directly, we'll just write the script
-    // The server should set the correct Content-Type header
+    document.open();
     document.write(script);
+    document.close();
   }, [embedId]);
 
   return null;
