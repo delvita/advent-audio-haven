@@ -83,18 +83,20 @@ export const AudioPlayer = ({ audioSrc, title, imageUrl, onNext }: AudioPlayerPr
   };
 
   return (
-    <Card className="p-6 max-w-2xl mx-auto bg-white/80 backdrop-blur-sm">
+    <Card className="overflow-hidden">
       <audio ref={audioRef} src={audioSrc} />
-      <div className="flex gap-6">
+      <div className="flex flex-col sm:flex-row">
         {imageUrl && (
-          <img
-            src={imageUrl}
-            alt={title}
-            className="w-24 h-24 rounded-lg object-cover"
-          />
+          <div className="w-full sm:w-1/3">
+            <img
+              src={imageUrl}
+              alt={title}
+              className="w-full h-full object-cover aspect-square sm:aspect-auto"
+            />
+          </div>
         )}
-        <div className="flex-1 space-y-6">
-          <h2 className="text-xl font-semibold mb-4">{title}</h2>
+        <div className="flex-1 p-6 space-y-6">
+          <h2 className="text-xl font-semibold">{title}</h2>
           <AudioControls
             isPlaying={isPlaying}
             onPlayPause={handlePlayPause}
