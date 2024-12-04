@@ -65,7 +65,8 @@ const Index = () => {
       {currentEpisode && (
         <AudioPlayer
           title={currentEpisode.title}
-          audioSrc={currentEpisode.audioSrc}
+          audioSrc={currentEpisode.audioUrl}
+          imageUrl={currentEpisode.imageUrl}
           onNext={() => {
             const currentIndex = episodes.findIndex(
               (ep) => ep.audioUrl === currentEpisode.audioUrl
