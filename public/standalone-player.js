@@ -62,7 +62,7 @@
   episodeTitle.style.fontWeight = '600';
   episodeTitle.style.color = '#1a1a1a';
   
-  // Audio player container - moved up before it's used
+  // Audio player container
   const audioContainer = document.createElement('div');
   audioContainer.style.padding = '0 20px 20px';
   
@@ -167,7 +167,7 @@
     return duration;
   };
   
-  // Function to get episode image from item
+  // Function to get episode image from item - moved up before it's used
   const getEpisodeImage = (item) => {
     // Try different possible image sources in order of preference
     const itunesImage = item.querySelector('itunes\\:image')?.getAttribute('href');
