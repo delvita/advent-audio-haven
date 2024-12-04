@@ -9,7 +9,11 @@ interface EmbedCodesProps {
 
 export const EmbedCodes = ({ embedId }: EmbedCodesProps) => {
   const { toast } = useToast();
-  const baseUrl = window.location.origin;
+  
+  // Use the production URL if available, otherwise fall back to the current origin
+  const baseUrl = import.meta.env.PROD 
+    ? "https://advent-audio-haven.lovable.app"
+    : window.location.origin;
 
   const jsCode = `<script src="${baseUrl}/embed.js?id=${embedId}"></script>`;
   const iframeCode = `<iframe src="${baseUrl}/embed/${embedId}" width="100%" height="600" frameborder="0"></iframe>`;
