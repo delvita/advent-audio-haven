@@ -11,96 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-interface Colors {
-  text: string;
-  primary: string;
-  secondary: string;
-  background: string;
-}
-
-interface PlayerSettings {
-  id: string;
-  name: string;
-  feed_url: string;
-  colors: Colors;
-  list_height: string;
-  sort_ascending: boolean;
-  show_first_post: boolean;
-  player_type: string;
-}
-
-const defaultSettings: Partial<PlayerSettings> = {
-  name: "",
-  feed_url: "",
-  colors: {
-    text: "#000000",
-    primary: "#9b87f5",
-    secondary: "#7E69AB",
-    background: "#ffffff",
-  },
-  list_height: "600",
-  sort_ascending: false,
-  show_first_post: false,
-  player_type: "medium",
-};
+import { PlayerSettings, defaultSettings } from "@/types/player";
+import { usePlayerSettings } from "@/hooks/usePlayerSettings";
 
 const Customize = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [settings, setSettings] = useState<Partial<PlayerSettings>>(defaultSettings);
-
-  const { data: existingSettings, isLoading } = useQuery({
-    queryKey: ["playerSettings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("player_settings")
-        .select("*")
-        .single();
-
-      if (error) throw error;
-      return data as unknown as PlayerSettings;
-    },
-  });
-
-  const mutation = useMutation({
-    mutationFn: async (newSettings: Partial<PlayerSettings>) => {
-      const { data, error } = await supabase
-        .from("player_settings")
-        .upsert({
-          id: existingSettings?.id || "default",
-          name: newSettings.name || "",
-          feed_url: newSettings.feed_url || "",
-          colors: newSettings.colors || defaultSettings.colors,
-          list_height: newSettings.list_height || defaultSettings.list_height,
-          sort_ascending: newSettings.sort_ascending ?? defaultSettings.sort_ascending,
-          show_first_post: newSettings.show_first_post ?? defaultSettings.show_first_post,
-          player_type: newSettings.player_type || defaultSettings.player_type,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["playerSettings"] });
-      toast({
-        title: "Einstellungen gespeichert",
-        description: "Ihre Änderungen wurden erfolgreich gespeichert.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Fehler beim Speichern",
-        description: "Ihre Änderungen konnten nicht gespeichert werden.",
-        variant: "destructive",
-      });
-    },
-  });
+  const { mutation, isLoading } = usePlayerSettings();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
