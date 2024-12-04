@@ -6,6 +6,7 @@ interface Episode {
   audioUrl: string;
   imageUrl: string;
   duration?: string;
+  pubDate: string;
 }
 
 interface EpisodeListProps {
