@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Play } from "lucide-react";
 
 interface Episode {
   title: string;
@@ -32,15 +33,22 @@ export const EpisodeList = ({ episodes = [], currentEpisode, onEpisodeSelect }: 
                 : "hover:bg-accent"
             }`}
           >
-            <img
-              src={episode.imageUrl}
-              alt={episode.title}
-              className="w-16 h-16 rounded object-cover"
-            />
+            <div className="relative">
+              <img
+                src={episode.imageUrl}
+                alt={episode.title}
+                className="w-16 h-16 rounded object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Play className="w-8 h-8 text-white drop-shadow-lg" fill="white" />
+              </div>
+            </div>
             <div className="flex-1 text-left">
               <h4 className="font-medium line-clamp-2">{episode.title}</h4>
               {episode.duration && (
-                <span className="text-sm text-muted-foreground mt-1">{episode.duration}</span>
+                <span className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                  {episode.duration}
+                </span>
               )}
             </div>
           </button>
