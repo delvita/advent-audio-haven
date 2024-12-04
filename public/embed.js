@@ -1,5 +1,6 @@
 (function() {
   const container = document.createElement('div');
+  container.id = 'podcast-player-container';
   container.style.width = '100%';
   container.style.maxWidth = '800px';
   container.style.margin = '0 auto';
