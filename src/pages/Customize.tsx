@@ -57,6 +57,10 @@ const Customize = () => {
     return duration;
   };
 
+  const sortEpisodes = (episodesToSort: Episode[], ascending: boolean) => {
+    return ascending ? [...episodesToSort] : [...episodesToSort].reverse();
+  };
+
   const fetchFeed = async (feedUrl: string) => {
     try {
       const response = await fetch(feedUrl);
@@ -80,9 +84,7 @@ const Customize = () => {
       });
 
       const shouldSortAscending = previewSettings?.sort_ascending ?? existingSettings?.sort_ascending ?? false;
-      if (shouldSortAscending) {
-        parsedEpisodes = parsedEpisodes.reverse();
-      }
+      parsedEpisodes = sortEpisodes(parsedEpisodes, shouldSortAscending);
 
       setEpisodes(parsedEpisodes);
 
@@ -105,7 +107,20 @@ const Customize = () => {
     } else if (existingSettings?.feed_url) {
       fetchFeed(existingSettings.feed_url);
     }
-  }, [previewSettings?.feed_url, existingSettings?.feed_url, previewSettings?.sort_ascending, previewSettings?.show_first_post]);
+  }, [previewSettings?.feed_url, existingSettings?.feed_url]);
+
+  // Add this new effect to handle sorting changes
+  useEffect(() => {
+    if (episodes.length > 0) {
+      const shouldSortAscending = previewSettings?.sort_ascending ?? existingSettings?.sort_ascending ?? false;
+      const sortedEpisodes = sortEpisodes(episodes, shouldSortAscending);
+      setEpisodes(sortedEpisodes);
+
+      // Update current episode based on show_first_post setting
+      const showFirstPost = previewSettings?.show_first_post ?? existingSettings?.show_first_post ?? false;
+      setCurrentEpisode(showFirstPost ? sortedEpisodes[0] : sortedEpisodes[sortedEpisodes.length - 1]);
+    }
+  }, [previewSettings?.sort_ascending, previewSettings?.show_first_post]);
 
   const handleSettingsChange = (newSettings: Partial<PlayerSettings>) => {
     setPreviewSettings(newSettings);
