@@ -14,10 +14,19 @@ export const usePlayerSettings = () => {
       const { data, error } = await supabase
         .from("player_settings")
         .select("*")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as PlayerSettingsDB;
+      return data as PlayerSettingsDB || {
+        id: "default",
+        name: defaultSettings.name || "",
+        feed_url: defaultSettings.feed_url || "",
+        colors: defaultSettings.colors,
+        list_height: defaultSettings.list_height,
+        sort_ascending: defaultSettings.sort_ascending,
+        show_first_post: defaultSettings.show_first_post,
+        player_type: defaultSettings.player_type,
+      };
     },
   });
 
