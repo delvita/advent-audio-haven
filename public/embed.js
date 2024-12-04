@@ -24,8 +24,9 @@
   
   const scriptUrl = new URL(scriptTag.src);
   const playerDomain = `${scriptUrl.protocol}//${scriptUrl.host}`;
+  const corsProxy = 'https://mf1.ch/crosproxy/?';
   
-  fetch(`${playerDomain}/embed/${embedId}`)
+  fetch(`${corsProxy}${playerDomain}/embed/${embedId}`)
     .then(response => response.text())
     .then(html => {
       playerContainer.innerHTML = html;
