@@ -28,12 +28,6 @@ export const AudioPlayer = ({ audioSrc, title, imageUrl, onNext }: AudioPlayerPr
       setDuration(0);
       setIsPlaying(false);
       setShowEndActions(false);
-      
-      // Start playing when a new episode is selected
-      audioRef.current.play().catch(() => {
-        // Autoplay was prevented
-        setIsPlaying(false);
-      });
     }
 
     return () => {

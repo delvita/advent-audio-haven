@@ -65,7 +65,7 @@ const Customize = () => {
       const xml = parser.parseFromString(text, "text/xml");
       const items = xml.querySelectorAll("item");
 
-      const parsedEpisodes = Array.from(items).map((item) => {
+      let parsedEpisodes = Array.from(items).map((item) => {
         const title = item.querySelector("title")?.textContent || "Untitled Episode";
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
         const imageUrl = getValidImageUrl(item);
@@ -79,9 +79,16 @@ const Customize = () => {
         };
       });
 
+      const shouldSortAscending = previewSettings?.sort_ascending ?? existingSettings?.sort_ascending ?? false;
+      if (shouldSortAscending) {
+        parsedEpisodes = parsedEpisodes.reverse();
+      }
+
       setEpisodes(parsedEpisodes);
-      if (parsedEpisodes.length > 0 && !currentEpisode) {
-        setCurrentEpisode(parsedEpisodes[0]);
+
+      const showFirstPost = previewSettings?.show_first_post ?? existingSettings?.show_first_post ?? false;
+      if (parsedEpisodes.length > 0) {
+        setCurrentEpisode(showFirstPost ? parsedEpisodes[0] : parsedEpisodes[parsedEpisodes.length - 1]);
       }
     } catch (error) {
       toast({
@@ -98,7 +105,7 @@ const Customize = () => {
     } else if (existingSettings?.feed_url) {
       fetchFeed(existingSettings.feed_url);
     }
-  }, [previewSettings?.feed_url, existingSettings?.feed_url]);
+  }, [previewSettings?.feed_url, existingSettings?.feed_url, previewSettings?.sort_ascending, previewSettings?.show_first_post]);
 
   const handleSettingsChange = (newSettings: Partial<PlayerSettings>) => {
     setPreviewSettings(newSettings);
