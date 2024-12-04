@@ -1,41 +1,47 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const EmbedScript = () => {
   const [searchParams] = useSearchParams();
   const embedId = searchParams.get('id') || 'default';
+  const currentHost = window.location.origin;
 
-  useEffect(() => {
-    const currentHost = window.location.origin;
-    const script = `
-      (function() {
-        const container = document.createElement('div');
-        container.style.width = '100%';
-        container.style.maxWidth = '800px';
-        container.style.margin = '0 auto';
-        
-        const iframe = document.createElement('iframe');
-        iframe.src = '${currentHost}/embed/${embedId}';
-        iframe.style.width = '100%';
-        iframe.style.height = '600px';
-        iframe.style.border = 'none';
-        iframe.style.borderRadius = '8px';
-        iframe.allow = 'autoplay';
-        
-        container.appendChild(iframe);
-        
-        const scriptTag = document.currentScript;
-        if (scriptTag && scriptTag.parentNode) {
-          scriptTag.parentNode.insertBefore(container, scriptTag.nextSibling);
-        }
-      })();
-    `;
+  // Return the script content directly
+  const script = `
+    (function() {
+      const container = document.createElement('div');
+      container.style.width = '100%';
+      container.style.maxWidth = '800px';
+      container.style.margin = '0 auto';
+      
+      const iframe = document.createElement('iframe');
+      iframe.src = '${currentHost}/embed/${embedId}';
+      iframe.style.width = '100%';
+      iframe.style.height = '600px';
+      iframe.style.border = 'none';
+      iframe.style.borderRadius = '8px';
+      iframe.allow = 'autoplay';
+      
+      container.appendChild(iframe);
+      
+      const scriptTag = document.currentScript;
+      if (scriptTag && scriptTag.parentNode) {
+        scriptTag.parentNode.insertBefore(container, scriptTag.nextSibling);
+      }
+    })();
+  `;
 
-    // Write the script directly
-    document.open();
-    document.write(script);
-    document.close();
-  }, [embedId]);
+  // Set the content type to JavaScript
+  const blob = new Blob([script], { type: 'application/javascript' });
+  const url = URL.createObjectURL(blob);
+
+  // Download the script
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'embed.js';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 
   return null;
 };
