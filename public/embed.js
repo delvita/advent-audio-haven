@@ -21,19 +21,16 @@
     console.error('No embed ID provided');
     return;
   }
+
+  // Create an iframe instead of directly injecting HTML to avoid CORS issues with stylesheets
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://advent-audio-haven.lovable.app/embed/${embedId}`;
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  iframe.style.overflow = 'hidden';
   
-  const corsProxy = 'https://mf1.ch/crosproxy/?';
-  
-  fetch(`${corsProxy}https://advent-audio-haven.lovable.app/embed/${embedId}`)
-    .then(response => response.text())
-    .then(html => {
-      playerContainer.innerHTML = html;
-    })
-    .catch(error => {
-      console.error('Error loading player:', error);
-      playerContainer.innerHTML = 'Error loading player content';
-    });
-  
+  playerContainer.appendChild(iframe);
   container.appendChild(playerContainer);
   
   if (scriptTag && scriptTag.parentNode) {
