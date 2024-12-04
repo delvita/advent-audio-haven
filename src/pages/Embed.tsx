@@ -10,57 +10,6 @@ const Embed = () => {
   const [currentEpisode, setCurrentEpisode] = useState<Episode>();
   const [episodes, setEpisodes] = useState<Episode[]>([]);
 
-  const { isLoading } = useQuery({
-    queryKey: ["playerSettings", embedId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("player_settings")
-        .select("*")
-        .eq("id", embedId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: async (settings) => {
-      try {
-        const response = await fetch(settings.feed_url);
-        const text = await response.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "text/xml");
-        const items = xml.querySelectorAll("item");
-
-        const parsedEpisodes = Array.from(items).map((item): Episode => {
-          const title = item.querySelector("title")?.textContent || "Untitled Episode";
-          const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
-          const imageUrl = getValidImageUrl(item);
-          const duration = getDuration(item);
-          const pubDate = item.querySelector("pubDate")?.textContent || new Date().toISOString();
-          
-          return {
-            title,
-            audioUrl,
-            imageUrl,
-            duration,
-            pubDate,
-          };
-        });
-
-        const sortedEpisodes = sortEpisodes(parsedEpisodes, settings.sort_ascending);
-        setEpisodes(sortedEpisodes);
-
-        if (sortedEpisodes.length > 0) {
-          const initialEpisode = settings.show_first_post ? 
-            sortedEpisodes[0] : 
-            sortedEpisodes[sortedEpisodes.length - 1];
-          setCurrentEpisode(initialEpisode);
-        }
-      } catch (error) {
-        console.error("Error fetching feed:", error);
-      }
-    }
-  });
-
   const getFallbackImage = () => {
     return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=500&h=500";
   };
@@ -114,6 +63,58 @@ const Embed = () => {
       setCurrentEpisode(episodes[currentIndex + 1]);
     }
   };
+
+  const { isLoading } = useQuery({
+    queryKey: ["playerSettings", embedId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("player_settings")
+        .select("*")
+        .eq("id", embedId)
+        .single();
+
+      if (error) throw error;
+
+      try {
+        const response = await fetch(data.feed_url);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "text/xml");
+        const items = xml.querySelectorAll("item");
+
+        const parsedEpisodes = Array.from(items).map((item): Episode => {
+          const title = item.querySelector("title")?.textContent || "Untitled Episode";
+          const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
+          const imageUrl = getValidImageUrl(item);
+          const duration = getDuration(item);
+          const pubDate = item.querySelector("pubDate")?.textContent || new Date().toISOString();
+          
+          return {
+            title,
+            audioUrl,
+            imageUrl,
+            duration,
+            pubDate,
+          };
+        });
+
+        const sortedEpisodes = sortEpisodes(parsedEpisodes, data.sort_ascending);
+        setEpisodes(sortedEpisodes);
+
+        if (sortedEpisodes.length > 0) {
+          const initialEpisode = data.show_first_post ? 
+            sortedEpisodes[0] : 
+            sortedEpisodes[sortedEpisodes.length - 1];
+          setCurrentEpisode(initialEpisode);
+        }
+
+        return data;
+      } catch (error) {
+        console.error("Error fetching feed:", error);
+        throw error;
+      }
+    }
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
