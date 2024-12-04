@@ -23,11 +23,9 @@ const EmbedScript = () => {
         currentScript.parentNode.insertBefore(iframe, currentScript.nextSibling);
       })();
     `;
-
-    // Setze den Content-Type Header
-    document.contentType = 'application/javascript';
     
-    // Gib das Script aus
+    // Clear the document and write the script
+    document.open('text/javascript');
     document.write(script);
     document.close();
   }, [embedId]);
