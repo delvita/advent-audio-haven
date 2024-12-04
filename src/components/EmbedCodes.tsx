@@ -11,7 +11,11 @@ export const EmbedCodes = ({ embedId }: EmbedCodesProps) => {
   const { toast } = useToast();
   const baseUrl = window.location.origin;
 
-  const jsCode = `<script src="${baseUrl}/embed.js?id=${embedId}"></script>`;
+  const jsCode = `<div id="podcast-player-container">
+  <div id="podcast-player"></div>
+</div>
+<script src="${baseUrl}/embed.js?id=${embedId}"></script>`;
+
   const iframeCode = `<iframe src="${baseUrl}/embed/${embedId}" width="100%" height="600" frameborder="0"></iframe>`;
 
   const copyToClipboard = (text: string, type: string) => {
