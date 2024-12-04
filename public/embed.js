@@ -15,8 +15,8 @@
   
   iframe.src = `${window.location.origin}/embed/${embedId}`;
   iframe.style.width = '100%';
-  iframe.style.height = '600px';
-  iframe.style.border = 'none';
+  iframe.style.height = '800px'; // Increased height to accommodate episode list
+  iframe.style.border = '1px solid #e2e8f0'; // Added subtle border
   iframe.style.borderRadius = '8px';
   iframe.allow = 'autoplay';
   

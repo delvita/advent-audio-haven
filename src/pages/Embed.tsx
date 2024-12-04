@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AudioPlayer } from "@/components/AudioPlayer/AudioPlayer";
 import { useState } from "react";
 import { Episode } from "@/types/episode";
+import { EpisodeList } from "@/components/AudioPlayer/EpisodeList";
+import { Card } from "@/components/ui/card";
 
 const Embed = () => {
   const { embedId } = useParams();
@@ -64,6 +66,10 @@ const Embed = () => {
     }
   };
 
+  const handleEpisodeSelect = (episode: Episode) => {
+    setCurrentEpisode(episode);
+  };
+
   const { isLoading } = useQuery({
     queryKey: ["playerSettings", embedId],
     queryFn: async () => {
@@ -122,14 +128,21 @@ const Embed = () => {
 
   return (
     <div className="w-full h-full bg-white">
-      {currentEpisode && (
-        <AudioPlayer
-          title={currentEpisode.title}
-          audioSrc={currentEpisode.audioUrl}
-          imageUrl={currentEpisode.imageUrl}
-          onNext={handleNext}
+      <Card className="overflow-hidden">
+        {currentEpisode && (
+          <AudioPlayer
+            title={currentEpisode.title}
+            audioSrc={currentEpisode.audioUrl}
+            imageUrl={currentEpisode.imageUrl}
+            onNext={handleNext}
+          />
+        )}
+        <EpisodeList
+          episodes={episodes}
+          currentEpisode={currentEpisode}
+          onEpisodeSelect={handleEpisodeSelect}
         />
-      )}
+      </Card>
     </div>
   );
 };
