@@ -3,6 +3,7 @@ import { AudioPlayer } from "@/components/AudioPlayer/AudioPlayer";
 import { EpisodeList } from "@/components/AudioPlayer/EpisodeList";
 import { useToast } from "@/hooks/use-toast";
 import { defaultSettings, getProxiedUrl } from "@/types/player";
+import { Card } from "@/components/ui/card";
 
 interface Episode {
   title: string;
@@ -30,12 +31,26 @@ const Index = () => {
     const description = item.querySelector("description")?.textContent;
     const imgMatch = description?.match(/<img[^>]+src="([^">]+)"/);
 
-    // Return the first valid image URL found, or fallback
     return itunesImage || 
            mediaContent || 
            enclosureImage || 
            (imgMatch && imgMatch[1]) || 
            getFallbackImage();
+  };
+
+  const getDuration = (item: Element): string | undefined => {
+    const duration = item.querySelector("itunes\\:duration")?.textContent;
+    if (!duration) return undefined;
+    
+    // Convert seconds to MM:SS format if duration is in seconds
+    if (/^\d+$/.test(duration)) {
+      const seconds = parseInt(duration);
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    return duration;
   };
 
   const fetchFeed = async () => {
@@ -50,11 +65,13 @@ const Index = () => {
         const title = item.querySelector("title")?.textContent || "Untitled Episode";
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
         const imageUrl = getValidImageUrl(item);
+        const duration = getDuration(item);
         
         return {
           title,
           audioUrl,
           imageUrl,
+          duration,
         };
       });
 
@@ -79,29 +96,33 @@ const Index = () => {
     setCurrentEpisode(episode);
   };
 
+  const handleNext = () => {
+    const currentIndex = episodes.findIndex(
+      (ep) => ep.audioUrl === currentEpisode?.audioUrl
+    );
+    if (currentIndex < episodes.length - 1) {
+      setCurrentEpisode(episodes[currentIndex + 1]);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold text-center mb-8">Advent Podcast</h1>
-      {currentEpisode && (
-        <AudioPlayer
-          title={currentEpisode.title}
-          audioSrc={currentEpisode.audioUrl}
-          imageUrl={currentEpisode.imageUrl}
-          onNext={() => {
-            const currentIndex = episodes.findIndex(
-              (ep) => ep.audioUrl === currentEpisode.audioUrl
-            );
-            if (currentIndex < episodes.length - 1) {
-              setCurrentEpisode(episodes[currentIndex + 1]);
-            }
-          }}
+      <Card className="overflow-hidden">
+        {currentEpisode && (
+          <AudioPlayer
+            title={currentEpisode.title}
+            audioSrc={currentEpisode.audioUrl}
+            imageUrl={currentEpisode.imageUrl}
+            onNext={handleNext}
+          />
+        )}
+        <EpisodeList
+          episodes={episodes}
+          currentEpisode={currentEpisode}
+          onEpisodeSelect={handleEpisodeSelect}
         />
-      )}
-      <EpisodeList
-        episodes={episodes}
-        currentEpisode={currentEpisode}
-        onEpisodeSelect={handleEpisodeSelect}
-      />
+      </Card>
     </div>
   );
 };
