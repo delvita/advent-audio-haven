@@ -154,8 +154,10 @@
   episodeListTitle.style.color = '#1a1a1a';
   
   const episodeListContainer = document.createElement('div');
-  episodeListContainer.style.maxHeight = '400px';
-  episodeListContainer.style.overflow = 'auto';
+
+// Update episodeListContainer styles
+episodeListContainer.style.maxHeight = '350px';
+episodeListContainer.style.overflow = 'auto';
 
   const formatDuration = (duration) => {
     if (!duration) return '';
@@ -262,50 +264,58 @@
   };
   
   // Function to parse RSS feed
-  const loadPodcast = async (feedUrl) => {
-    try {
-      const corsProxy = 'https://mf1.ch/crosproxy/?';
-      const response = await fetch(corsProxy + feedUrl);
-      const text = await response.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, 'text/xml');
+
+// Update loadPodcast function to load the oldest episode first while keeping sort order
+const loadPodcast = async (feedUrl) => {
+  try {
+    const corsProxy = 'https://mf1.ch/crosproxy/?';
+    const response = await fetch(corsProxy + feedUrl);
+    const text = await response.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+    
+    const items = xml.querySelectorAll('item');
+    const episodes = Array.from(items).map(item => {
+      return {
+        title: item.querySelector('title')?.textContent || 'Untitled Episode',
+        audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
+        duration: item.querySelector('itunes\\:duration')?.textContent,
+        imageUrl: getEpisodeImage(item),
+        pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
+      };
+    });
+    
+    // Sort episodes by publication date (newest first)
+    episodes.sort((a, b) => b.pubDate - a.pubDate);
+    
+    episodeListTitle.textContent = `Episodes (${episodes.length})`;
+    
+    episodes.forEach(episode => {
+      const episodeElement = createEpisodeElement(episode);
+      episodeListContainer.appendChild(episodeElement);
+    });
+    
+    // Load the oldest episode first (last in the sorted array)
+    if (episodes.length > 0) {
+      const oldestEpisode = episodes[episodes.length - 1];
+      audio.src = oldestEpisode.audioUrl;
+      episodeTitle.textContent = oldestEpisode.title;
+      featuredImage.src = oldestEpisode.imageUrl;
       
-      const items = xml.querySelectorAll('item');
-      const episodes = Array.from(items).map(item => {
-        return {
-          title: item.querySelector('title')?.textContent || 'Untitled Episode',
-          audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
-          duration: item.querySelector('itunes\\:duration')?.textContent,
-          imageUrl: getEpisodeImage(item),
-          pubDate: new Date(item.querySelector('pubDate')?.textContent || '').getTime()
-        };
-      });
-      
-      // Sort episodes by publication date (ascending - oldest first)
-      episodes.sort((a, b) => a.pubDate - b.pubDate);
-      
-      episodeListTitle.textContent = `Episodes (${episodes.length})`;
-      
-      episodes.forEach(episode => {
-        const episodeElement = createEpisodeElement(episode);
-        episodeListContainer.appendChild(episodeElement);
-      });
-      
-      // Load first (oldest) episode
-      if (episodes.length > 0) {
-        const firstEpisode = episodes[0];
-        audio.src = firstEpisode.audioUrl;
-        episodeTitle.textContent = firstEpisode.title;
-        featuredImage.src = firstEpisode.imageUrl;
-        episodeListContainer.firstChild.classList.add('episode-active');
-        episodeListContainer.firstChild.style.backgroundColor = '#f9fafb';
+      // Find and activate the corresponding episode element
+      const episodeElements = episodeListContainer.children;
+      const lastElement = episodeElements[episodeElements.length - 1];
+      if (lastElement) {
+        lastElement.classList.add('episode-active');
+        lastElement.style.backgroundColor = '#f9fafb';
       }
-    } catch (error) {
-      console.error('Error loading podcast feed:', error);
-      episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
     }
-  };
-  
+  } catch (error) {
+    console.error('Error loading podcast feed:', error);
+    episodeListContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading podcast feed</div>';
+  }
+};
+
   // Audio event listeners
   audio.addEventListener('timeupdate', () => {
     const currentTime = audio.currentTime;
