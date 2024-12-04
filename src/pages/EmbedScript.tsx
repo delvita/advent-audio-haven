@@ -19,17 +19,15 @@ const EmbedScript = () => {
         iframe.style.border = 'none';
         iframe.allow = 'autoplay';
         
-        const currentScript = document.currentScript;
-        if (currentScript) {
-          currentScript.parentNode.insertBefore(iframe, currentScript.nextSibling);
-        }
+        // Insert the iframe after the script tag
+        document.currentScript.insertAdjacentElement('afterend', iframe);
       })();
     `;
 
-    // Write the script content with proper content type
-    document.open('text/javascript');
-    document.write(script);
-    document.close();
+    // Write the script content directly to the document
+    const scriptElement = document.createElement('script');
+    scriptElement.textContent = script;
+    document.body.appendChild(scriptElement);
   }, [embedId]);
 
   return null;
