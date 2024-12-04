@@ -109,14 +109,12 @@ const Customize = () => {
     }
   }, [previewSettings?.feed_url, existingSettings?.feed_url]);
 
-  // Add this new effect to handle sorting changes
   useEffect(() => {
     if (episodes.length > 0) {
       const shouldSortAscending = previewSettings?.sort_ascending ?? existingSettings?.sort_ascending ?? false;
       const sortedEpisodes = sortEpisodes(episodes, shouldSortAscending);
       setEpisodes(sortedEpisodes);
 
-      // Update current episode based on show_first_post setting
       const showFirstPost = previewSettings?.show_first_post ?? existingSettings?.show_first_post ?? false;
       setCurrentEpisode(showFirstPost ? sortedEpisodes[0] : sortedEpisodes[sortedEpisodes.length - 1]);
     }
