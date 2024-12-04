@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Customize from "./pages/Customize";
 import Embed from "./pages/Embed";
+import EmbedScript from "./pages/EmbedScript";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/customize" element={<Customize />} />
             <Route path="/embed/:embedId" element={<Embed />} />
+            <Route path="/embed.js" element={<EmbedScript />} />
           </Routes>
         </BrowserRouter>
       </div>
