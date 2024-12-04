@@ -16,6 +16,28 @@ const Index = () => {
   const [currentEpisode, setCurrentEpisode] = useState<Episode>();
   const { toast } = useToast();
 
+  const getFallbackImage = () => {
+    return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=500&h=500";
+  };
+
+  const getValidImageUrl = (item: Element): string => {
+    // Try different possible image sources
+    const itunesImage = item.querySelector("itunes\\:image")?.getAttribute("href");
+    const mediaContent = item.querySelector("media\\:content, content")?.getAttribute("url");
+    const enclosureImage = Array.from(item.querySelectorAll("enclosure"))
+      .find(enc => enc.getAttribute("type")?.startsWith("image/"))
+      ?.getAttribute("url");
+    const description = item.querySelector("description")?.textContent;
+    const imgMatch = description?.match(/<img[^>]+src="([^">]+)"/);
+
+    // Return the first valid image URL found, or fallback
+    return itunesImage || 
+           mediaContent || 
+           enclosureImage || 
+           (imgMatch && imgMatch[1]) || 
+           getFallbackImage();
+  };
+
   const fetchFeed = async () => {
     try {
       const response = await fetch(getProxiedUrl(defaultSettings.feed_url || ""));
@@ -25,11 +47,9 @@ const Index = () => {
       const items = xml.querySelectorAll("item");
 
       const parsedEpisodes = Array.from(items).map((item) => {
-        const title = item.querySelector("title")?.textContent || "";
+        const title = item.querySelector("title")?.textContent || "Untitled Episode";
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
-        const imageUrl = item.querySelector("image")?.textContent || 
-                        item.querySelector("itunes\\:image")?.getAttribute("href") ||
-                        "/placeholder.svg";
+        const imageUrl = getValidImageUrl(item);
         
         return {
           title,
