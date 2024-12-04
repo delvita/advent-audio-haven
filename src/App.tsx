@@ -29,6 +29,7 @@ const App = () => (
             <Route path="/customize" element={<Customize />} />
             <Route path="/embed/:embedId" element={<Embed />} />
             <Route path="/embed.js" element={<EmbedScript />} />
+            <Route path="embed.js" element={<EmbedScript />} />
           </Routes>
         </BrowserRouter>
       </div>
