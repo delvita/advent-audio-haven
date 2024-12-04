@@ -7,7 +7,6 @@ const EmbedScript = () => {
   const currentHost = window.location.origin;
 
   useEffect(() => {
-    // Create the script content
     const script = `
       (function() {
         const container = document.createElement('div');
@@ -32,14 +31,24 @@ const EmbedScript = () => {
       })();
     `;
 
-    // Clear any existing content
-    document.open();
+    // Create a Blob containing the JavaScript code
+    const blob = new Blob([script], { type: 'application/javascript' });
     
-    // Write the script content directly to the document
-    document.write(script);
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
     
-    // Prevent React from re-rendering
-    document.close();
+    // Create a link element to trigger the download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'embed.js';
+    
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }, [embedId, currentHost]);
 
   return null;
