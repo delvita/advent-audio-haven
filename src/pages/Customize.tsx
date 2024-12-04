@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AudioPlayer } from "@/components/AudioPlayer/AudioPlayer";
 import { PlayerSettings } from "@/types/player";
 import { usePlayerSettings } from "@/hooks/usePlayerSettings";
@@ -7,10 +7,98 @@ import { PlayerSettingsTable } from "@/components/PlayerSettingsTable";
 import { convertJsonToColors } from "@/utils/typeConversions";
 import { EpisodeList } from "@/components/AudioPlayer/EpisodeList";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+
+interface Episode {
+  title: string;
+  audioUrl: string;
+  imageUrl: string;
+  duration?: string;
+}
 
 const Customize = () => {
   const [previewSettings, setPreviewSettings] = useState<Partial<PlayerSettings>>();
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [currentEpisode, setCurrentEpisode] = useState<Episode>();
   const { existingSettings, isLoading, mutation } = usePlayerSettings();
+  const { toast } = useToast();
+
+  const getFallbackImage = () => {
+    return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=500&h=500";
+  };
+
+  const getValidImageUrl = (item: Element): string => {
+    const itunesImage = item.querySelector("itunes\\:image")?.getAttribute("href");
+    const mediaContent = item.querySelector("media\\:content, content")?.getAttribute("url");
+    const enclosureImage = Array.from(item.querySelectorAll("enclosure"))
+      .find(enc => enc.getAttribute("type")?.startsWith("image/"))
+      ?.getAttribute("url");
+    const description = item.querySelector("description")?.textContent;
+    const imgMatch = description?.match(/<img[^>]+src="([^">]+)"/);
+
+    return itunesImage || 
+           mediaContent || 
+           enclosureImage || 
+           (imgMatch && imgMatch[1]) || 
+           getFallbackImage();
+  };
+
+  const getDuration = (item: Element): string | undefined => {
+    const duration = item.querySelector("itunes\\:duration")?.textContent;
+    if (!duration) return undefined;
+    
+    if (/^\d+$/.test(duration)) {
+      const seconds = parseInt(duration);
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    return duration;
+  };
+
+  const fetchFeed = async (feedUrl: string) => {
+    try {
+      const response = await fetch(feedUrl);
+      const text = await response.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, "text/xml");
+      const items = xml.querySelectorAll("item");
+
+      const parsedEpisodes = Array.from(items).map((item) => {
+        const title = item.querySelector("title")?.textContent || "Untitled Episode";
+        const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
+        const imageUrl = getValidImageUrl(item);
+        const duration = getDuration(item);
+        
+        return {
+          title,
+          audioUrl,
+          imageUrl,
+          duration,
+        };
+      });
+
+      setEpisodes(parsedEpisodes);
+      if (parsedEpisodes.length > 0 && !currentEpisode) {
+        setCurrentEpisode(parsedEpisodes[0]);
+      }
+    } catch (error) {
+      toast({
+        title: "Error loading feed",
+        description: "Could not load the podcast feed. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (previewSettings?.feed_url) {
+      fetchFeed(previewSettings.feed_url);
+    } else if (existingSettings?.feed_url) {
+      fetchFeed(existingSettings.feed_url);
+    }
+  }, [previewSettings?.feed_url, existingSettings?.feed_url]);
 
   const handleSettingsChange = (newSettings: Partial<PlayerSettings>) => {
     setPreviewSettings(newSettings);
@@ -30,6 +118,10 @@ const Customize = () => {
 
   const handleDelete = (dbSettings: any) => {
     mutation.mutate({ ...dbSettings, id: "default" });
+  };
+
+  const handleEpisodeSelect = (episode: Episode) => {
+    setCurrentEpisode(episode);
   };
 
   const currentSettings = previewSettings || (existingSettings ? {
@@ -62,19 +154,18 @@ const Customize = () => {
           <h2 className="text-xl font-semibold">Vorschau</h2>
           <div className="sticky top-4">
             <Card className="overflow-hidden">
-              {currentSettings?.feed_url && (
-                <>
-                  <AudioPlayer
-                    audioSrc={currentSettings.feed_url}
-                    title="Preview"
-                    imageUrl={currentSettings.feed_url}
-                  />
-                  <EpisodeList
-                    episodes={[]}
-                    onEpisodeSelect={() => {}}
-                  />
-                </>
+              {currentEpisode && (
+                <AudioPlayer
+                  title={currentEpisode.title}
+                  audioSrc={currentEpisode.audioUrl}
+                  imageUrl={currentEpisode.imageUrl}
+                />
               )}
+              <EpisodeList
+                episodes={episodes}
+                currentEpisode={currentEpisode}
+                onEpisodeSelect={handleEpisodeSelect}
+              />
             </Card>
           </div>
         </div>
