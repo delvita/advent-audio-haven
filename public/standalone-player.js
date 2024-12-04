@@ -114,13 +114,16 @@
     }
   };
   
-  // Insert player into the page
-  const scriptTag = document.currentScript;
-  if (scriptTag && scriptTag.parentNode) {
-    scriptTag.parentNode.insertBefore(container, scriptTag.nextSibling);
+  // Find target div and insert player
+  const targetDiv = document.getElementById('jsplayer');
+  if (targetDiv) {
+    targetDiv.appendChild(container);
     
-    // Get feed URL from data attribute or use default
-    const feedUrl = scriptTag.getAttribute('data-feed-url') || 'https://wirfamilien.ch/tag/advent/feed';
+    // Get feed URL from script tag data attribute or use default
+    const scriptTag = document.currentScript;
+    const feedUrl = scriptTag?.getAttribute('data-feed-url') || 'https://wirfamilien.ch/tag/advent/feed';
     loadPodcast(feedUrl);
+  } else {
+    console.error('Target div with id "jsplayer" not found');
   }
 })();
