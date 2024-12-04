@@ -4,13 +4,7 @@ import { EpisodeList } from "@/components/AudioPlayer/EpisodeList";
 import { useToast } from "@/hooks/use-toast";
 import { defaultSettings, getProxiedUrl } from "@/types/player";
 import { Card } from "@/components/ui/card";
-
-interface Episode {
-  title: string;
-  audioUrl: string;
-  imageUrl: string;
-  duration?: string;
-}
+import { Episode } from "@/types/episode";
 
 const Index = () => {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
@@ -66,12 +60,14 @@ const Index = () => {
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
         const imageUrl = getValidImageUrl(item);
         const duration = getDuration(item);
+        const pubDate = item.querySelector("pubDate")?.textContent || new Date().toISOString();
         
         return {
           title,
           audioUrl,
           imageUrl,
           duration,
+          pubDate,
         };
       });
 

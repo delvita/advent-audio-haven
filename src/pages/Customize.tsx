@@ -9,14 +9,7 @@ import { EpisodeList } from "@/components/AudioPlayer/EpisodeList";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { EmbedCodes } from "@/components/EmbedCodes";
-
-interface Episode {
-  title: string;
-  audioUrl: string;
-  imageUrl: string;
-  duration?: string;
-  pubDate: string; // Add pubDate for sorting
-}
+import { Episode } from "@/types/episode";
 
 const Customize = () => {
   const [previewSettings, setPreviewSettings] = useState<Partial<PlayerSettings>>();
@@ -75,7 +68,7 @@ const Customize = () => {
       const xml = parser.parseFromString(text, "text/xml");
       const items = xml.querySelectorAll("item");
 
-      let parsedEpisodes = Array.from(items).map((item) => {
+      const parsedEpisodes = Array.from(items).map((item) => {
         const title = item.querySelector("title")?.textContent || "Untitled Episode";
         const audioUrl = item.querySelector("enclosure")?.getAttribute("url") || "";
         const imageUrl = getValidImageUrl(item);

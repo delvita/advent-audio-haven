@@ -1,13 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Play } from "lucide-react";
-
-interface Episode {
-  title: string;
-  audioUrl: string;
-  imageUrl: string;
-  duration?: string;
-  pubDate: string;
-}
+import { Episode } from "@/types/episode";
 
 interface EpisodeListProps {
   episodes: Episode[];
