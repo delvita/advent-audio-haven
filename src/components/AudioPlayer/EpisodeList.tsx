@@ -13,7 +13,9 @@ interface EpisodeListProps {
   onEpisodeSelect: (episode: Episode) => void;
 }
 
-export const EpisodeList = ({ episodes, currentEpisode, onEpisodeSelect }: EpisodeListProps) => {
+export const EpisodeList = ({ episodes = [], currentEpisode, onEpisodeSelect }: EpisodeListProps) => {
+  if (!episodes.length) return null;
+
   return (
     <div className="border-t">
       <div className="p-4">

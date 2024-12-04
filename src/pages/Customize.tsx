@@ -32,7 +32,10 @@ const Customize = () => {
     mutation.mutate({ ...dbSettings, id: "default" });
   };
 
-  const currentSettings = previewSettings || existingSettings;
+  const currentSettings = previewSettings || (existingSettings ? {
+    ...existingSettings,
+    colors: convertJsonToColors(existingSettings.colors)
+  } : undefined);
 
   if (isLoading) {
     return <div className="container mx-auto px-4 py-8">Lädt...</div>;
@@ -62,16 +65,13 @@ const Customize = () => {
               {currentSettings?.feed_url && (
                 <>
                   <AudioPlayer
-                    feedUrl={currentSettings.feed_url}
-                    colors={currentSettings.colors}
-                    playerType={currentSettings.player_type}
+                    audioSrc={currentSettings.feed_url}
+                    title="Preview"
+                    imageUrl={currentSettings.feed_url}
                   />
                   <EpisodeList
-                    feedUrl={currentSettings.feed_url}
-                    colors={currentSettings.colors}
-                    listHeight={currentSettings.list_height}
-                    sortAscending={currentSettings.sort_ascending}
-                    showFirstPost={currentSettings.show_first_post}
+                    episodes={[]}
+                    onEpisodeSelect={() => {}}
                   />
                 </>
               )}
