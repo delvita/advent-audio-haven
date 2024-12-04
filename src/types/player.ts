@@ -31,9 +31,12 @@ export interface PlayerSettingsDB {
   updated_at?: string;
 }
 
+const DEFAULT_FEED = "https://wirfamilien.ch/tag/advent/feed";
+const CORS_PROXY = "https://mf1.ch/crosproxy/?";
+
 export const defaultSettings: Partial<PlayerSettings> = {
   name: "",
-  feed_url: "",
+  feed_url: DEFAULT_FEED,
   colors: {
     text: "#000000",
     primary: "#9b87f5",
@@ -44,4 +47,14 @@ export const defaultSettings: Partial<PlayerSettings> = {
   sort_ascending: false,
   show_first_post: false,
   player_type: "medium",
+};
+
+export const getProxiedUrl = (url: string): string => {
+  // Check if the URL is already using our CORS proxy
+  if (url.startsWith(CORS_PROXY)) {
+    return url;
+  }
+  
+  // Check if this is our default feed or if we need to add the proxy
+  return url === DEFAULT_FEED ? CORS_PROXY + url : url;
 };

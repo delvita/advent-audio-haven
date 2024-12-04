@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { PlayerSettings, PlayerSettingsDB, defaultSettings } from "@/types/player";
+import { PlayerSettings, PlayerSettingsDB, defaultSettings, getProxiedUrl } from "@/types/player";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Json } from "@/integrations/supabase/types";
@@ -18,16 +18,24 @@ export const usePlayerSettings = () => {
         .maybeSingle();
 
       if (error) throw error;
-      return data as PlayerSettingsDB || {
-        id: "default",
-        name: defaultSettings.name || "",
-        feed_url: defaultSettings.feed_url || "",
-        colors: defaultSettings.colors as unknown as Json,
-        list_height: defaultSettings.list_height,
-        sort_ascending: defaultSettings.sort_ascending,
-        show_first_post: defaultSettings.show_first_post,
-        player_type: defaultSettings.player_type,
-      };
+      
+      if (!data) {
+        return {
+          id: "default",
+          name: defaultSettings.name || "",
+          feed_url: getProxiedUrl(defaultSettings.feed_url || ""),
+          colors: defaultSettings.colors as unknown as Json,
+          list_height: defaultSettings.list_height,
+          sort_ascending: defaultSettings.sort_ascending,
+          show_first_post: defaultSettings.show_first_post,
+          player_type: defaultSettings.player_type,
+        };
+      }
+
+      return {
+        ...data,
+        feed_url: getProxiedUrl(data.feed_url),
+      } as PlayerSettingsDB;
     },
   });
 
@@ -38,7 +46,7 @@ export const usePlayerSettings = () => {
         .upsert({
           id: existingSettings?.id || "default",
           name: newSettings.name || "",
-          feed_url: newSettings.feed_url || "",
+          feed_url: newSettings.feed_url || defaultSettings.feed_url || "",
           colors: newSettings.colors as unknown as Json,
           list_height: newSettings.list_height || defaultSettings.list_height,
           sort_ascending: newSettings.sort_ascending ?? defaultSettings.sort_ascending,
